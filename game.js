@@ -3,13 +3,14 @@ const draw = () => {
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
     
-    let imageWidth = '150';
-    let imageHeight = '150';
+    let imageWidth = 150;
+    let imageHeight = 150;
+    let isMatch = false;
     
     let arrayOfDoubles = [];
     let arrayOfQuestionCards = [0,0,0,0,0,0,0,0,
                                     0,0,0,0,0,0,0,0];
-    
+
     let firstClick = null;
     let secondClick = null;
 
@@ -54,35 +55,23 @@ const draw = () => {
         { x: 450, y: 450, place: 15 }
     ];
 
-    let getCursorPosition = (canvas, event) => {
-        const rect = canvas.getBoundingClientRect()
-        const x = event.clientX - rect.left
-        const y = event.clientY - rect.top
-
-        let click = findPlacingOfClick(x, y, imagePlacingArray);
-        onRefreshAreaAfterTwoClicks(click);
-    }
-
-    let onRefreshAreaAfterTwoClicks = (click) => {
-        if(firstClick!=null&&secondClick!=null) {
-            //refreshing area func here
-            firstClick = null;
-            secondClick = null;
-            return;
-        }
-        if (firstClick==null&&secondClick==null) firstClick = click;
-        else if(firstClick!=null&&secondClick==null&&click!=firstClick) secondClick = click;
-        console.log(firstClick)
-        console.log(secondClick)
+    let checkPlaceByCoorditnates = (i, x, array, min, max) => {
+        if (
+            x >= min && x < max &&
+            array[i].x >= min && array[i].x < max
+            ) return true;
     }
 
     let findPlacingOfClick = (x, y, imagePlacingArray) => {
         let buffer = [];
         for (let i = 0; i < imagePlacingArray.length; i++) {
-            if (x >= 0 && x < 150 && imagePlacingArray[i].x >= 0 && imagePlacingArray[i].x < 150) buffer.push(imagePlacingArray[i]);
-            else if (x >= 150 && x < 300 && imagePlacingArray[i].x >= 150 && imagePlacingArray[i].x < 300) buffer.push(imagePlacingArray[i]);
-            else if (x >= 300 && x < 450 && imagePlacingArray[i].x >= 300 && imagePlacingArray[i].x < 450) buffer.push(imagePlacingArray[i]);
-            else if (x >= 450 && x < 600 && imagePlacingArray[i].x >= 450 && imagePlacingArray[i].x < 600) buffer.push(imagePlacingArray[i]);
+                 if (checkPlaceByCoorditnates(i, x, imagePlacingArray, 0, 150)) buffer.push(imagePlacingArray[i]);
+
+            else if (checkPlaceByCoorditnates(i, x, imagePlacingArray, 150, 300)) buffer.push(imagePlacingArray[i]);
+
+            else if (checkPlaceByCoorditnates(i, x, imagePlacingArray, 300, 450)) buffer.push(imagePlacingArray[i]);
+
+            else if (checkPlaceByCoorditnates(i, x, imagePlacingArray, 450, 600)) buffer.push(imagePlacingArray[i]);
         }
 
         for (let j = 0; j < buffer.length; j++) {
@@ -114,7 +103,56 @@ const draw = () => {
         getCursorPosition(canvas, e);
     }
 
-    let drawImageOnCanvas =  (image, index) => {
+    let getCursorPosition = (canvas, event) => {
+        const rect = canvas.getBoundingClientRect()
+        const x = event.clientX - rect.left
+        const y = event.clientY - rect.top
+
+        let click = findPlacingOfClick(x, y, imagePlacingArray);
+        onClickHandler(click);
+    }
+
+    let onClickHandler = (click) => {
+        
+        if(firstClick!=null&&secondClick!=null) {
+            //refreshing area func here
+            if(!isMatch) {
+                drawQuestion(firstClick);
+                drawQuestion(secondClick);
+            }
+            firstClick = null;
+            secondClick = null;
+            isMatch = false;
+        }
+        if (firstClick==null&&secondClick==null) {
+            firstClick = click;
+            drawFruit(firstClick);
+        }
+        else if(firstClick!=null&&secondClick==null&&click!=firstClick){
+            secondClick = click;
+            drawFruit(secondClick);
+            checkMatch();
+        } 
+    }
+
+    let checkMatch = () => {
+        if (arrayOfDoubles[firstClick] == arrayOfDoubles[secondClick]) {
+            isMatch = true;
+        }
+    }
+
+    let drawQuestion = (id) => {
+        clearPlaceOnCanvas(imagePlacingArray, id);
+        drawImageOnCanvas(imagesArray[0], id);
+    }
+
+    let drawFruit = (id) => {
+        // isWinningDouble();
+        clearPlaceOnCanvas(imagePlacingArray, id);
+        drawImageOnCanvas(imagesArray[arrayOfDoubles[id]], id)
+    }
+
+    let drawImageOnCanvas = (image, index) => {
         image.width = imageWidth;
         image.height = imageHeight;
         ctx.drawImage(image, 
@@ -124,9 +162,26 @@ const draw = () => {
                     image.height);
     }
 
+    let clearPlaceOnCanvas = (imagePlacingArray, id) => {
+        for(let i=0; i<imagePlacingArray.length; i++){
+            if(imagePlacingArray[i].place == id) {
+                ctx.clearRect(imagePlacingArray[i].x, 
+                    imagePlacingArray[i].y, imageWidth, imageHeight);
+            }
+            
+        }
+        
+    }
+
+    // let drawAllImages = () => {
+    //     for (let i=0; i<imagePlacingArray.length; i++){
+    //         drawImageOnCanvas(imagesArray[arrayOfDoubles[i]], i);
+    //     }
+    // }
+
     let drawAllImages = () => {
         for (let i=0; i<imagePlacingArray.length; i++){
-            drawImageOnCanvas(imagesArray[arrayOfDoubles[i]], i);
+            drawImageOnCanvas(imagesArray[arrayOfQuestionCards[i]], i);
         }
     }
 
