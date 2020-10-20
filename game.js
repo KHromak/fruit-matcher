@@ -1,28 +1,31 @@
 const draw = () => {
     
     const canvas = document.getElementById('gameCanvas');
+    const moves = document.getElementById('movesCount');
     const ctx = canvas.getContext('2d');
+    let count = 0;
     
     let imageWidth = 150;
     let imageHeight = 150;
     let isMatch = false;
     
     let arrayOfDoubles = [];
+    let arrayOfWinIDs = [];
     let arrayOfQuestionCards = [0,0,0,0,0,0,0,0,
                                     0,0,0,0,0,0,0,0];
 
     let firstClick = null;
     let secondClick = null;
 
-    let question = document.getElementById(0)
-    let plum = document.getElementById(1)
-    let pear = document.getElementById(2)
-    let apple = document.getElementById(3)
-    let melon = document.getElementById(4)
-    let grapes = document.getElementById(5)
-    let orange = document.getElementById(6)
-    let pineapple = document.getElementById(7)
-    let strawberry = document.getElementById(8)
+    let question = document.getElementById(0);
+    let plum = document.getElementById(1);
+    let pear = document.getElementById(2);
+    let apple = document.getElementById(3);
+    let melon = document.getElementById(4);
+    let grapes = document.getElementById(5);
+    let orange = document.getElementById(6);
+    let pineapple = document.getElementById(7);
+    let strawberry = document.getElementById(8);
 
     let imagesArray = [
         question,
@@ -110,13 +113,20 @@ const draw = () => {
 
         let click = findPlacingOfClick(x, y, imagePlacingArray);
         onClickHandler(click);
+        onMovesCounter();
+    }
+
+    let onMovesCounter = () => {
+        moves.innerHTML = ++count;
     }
 
     let onClickHandler = (click) => {
         
         if(firstClick!=null&&secondClick!=null) {
-            //refreshing area func here
-            if(!isMatch) {
+            if(isMatch) {
+                arrayOfWinIDs.push(firstClick);
+                arrayOfWinIDs.push(secondClick);
+            } else {
                 drawQuestion(firstClick);
                 drawQuestion(secondClick);
             }
@@ -132,7 +142,38 @@ const draw = () => {
             secondClick = click;
             drawFruit(secondClick);
             checkMatch();
+            checkEndGame();
         } 
+    }
+
+    let checkEndGame = () => {
+        console.log("checkEndGame -> arrayOfWinIDs.length", arrayOfWinIDs.length)
+        if(arrayOfWinIDs.length == 14) {
+            drawWinScreen(count);
+        }
+    }
+
+    let drawWinScreen = (count) => {
+        var grd = ctx.createLinearGradient(0, 0, 600, 600);
+        grd.addColorStop(0, "green");
+        grd.addColorStop(1, "cyan");
+        ctx.fillStyle = grd;
+        ctx.fillRect(0,0,600,600);
+        ctx.font="30px Georgia";
+        ctx.textAlign="center"; 
+        ctx.textBaseline = "middle";
+        ctx.fillStyle = "#000000";
+        if(count>0&&count<=17) {
+            ctx.fillText(`wow you won the highscore!!`, 300, 300);
+            ctx.fillText(`You level is ADVANCED. moves: ${count+1}`, 300, 350);
+        } else if (count>17&&count<=35) {
+            ctx.fillText(`chill! your level is MEDIUM.`, 300, 300);
+            ctx.fillText(`Your moves is: ${count+1}`, 300, 350);
+        }
+        if(count>35) {
+            ctx.fillText(`not bad! Your level is BEGINNER!`, 300, 300);
+            ctx.fillText(`Your moves is: ${count+1}`, 300, 350);
+        }
     }
 
     let checkMatch = () => {
@@ -147,7 +188,6 @@ const draw = () => {
     }
 
     let drawFruit = (id) => {
-        // isWinningDouble();
         clearPlaceOnCanvas(imagePlacingArray, id);
         drawImageOnCanvas(imagesArray[arrayOfDoubles[id]], id)
     }
@@ -172,12 +212,6 @@ const draw = () => {
         }
         
     }
-
-    // let drawAllImages = () => {
-    //     for (let i=0; i<imagePlacingArray.length; i++){
-    //         drawImageOnCanvas(imagesArray[arrayOfDoubles[i]], i);
-    //     }
-    // }
 
     let drawAllImages = () => {
         for (let i=0; i<imagePlacingArray.length; i++){

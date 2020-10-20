@@ -1,1 +1,18 @@
 canvas { border: 1px solid black; }
+.header-block {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.left, .counter{
+    font-size: 25px;
+    margin: 20px;
+}
+
+.moves-count{
+    font-size: 25px;
+    margin: 20px;
+    color: green;
+    font-weight: bold;
+}
