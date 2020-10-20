@@ -124,8 +124,8 @@ const draw = () => {
         
         if(firstClick!=null&&secondClick!=null) {
             if(isMatch) {
-                arrayOfWinIDs.push(firstClick);
-                arrayOfWinIDs.push(secondClick);
+                arrayOfWinIDs.push(arrayOfDoubles[firstClick]);
+                arrayOfWinIDs.push(arrayOfDoubles[secondClick]);
             } else {
                 drawQuestion(firstClick);
                 drawQuestion(secondClick);
@@ -135,19 +135,36 @@ const draw = () => {
             isMatch = false;
         }
         if (firstClick==null&&secondClick==null) {
-            firstClick = click;
-            drawFruit(firstClick);
+            if(!isFruitInWinArray(click)){
+                firstClick = click;
+                drawFruit(firstClick);
+            }
         }
         else if(firstClick!=null&&secondClick==null&&click!=firstClick){
-            secondClick = click;
-            drawFruit(secondClick);
-            checkMatch();
-            checkEndGame();
+            if(!isFruitInWinArray(click)) {
+                secondClick = click;
+                drawFruit(secondClick);
+                checkMatch();
+                checkEndGame();
+            }
+            
         } 
     }
 
+    let isFruitInWinArray = (click) => {
+        if (arrayOfWinIDs.length == 0){
+            return false
+        } else {
+            for (let i=0; i<arrayOfWinIDs.length; i++){
+                if(arrayOfWinIDs[i] == arrayOfDoubles[click]){
+                    return true;
+                }
+            }
+        }
+
+    }
+
     let checkEndGame = () => {
-        console.log("checkEndGame -> arrayOfWinIDs.length", arrayOfWinIDs.length)
         if(arrayOfWinIDs.length == 14) {
             drawWinScreen(count);
         }
@@ -164,14 +181,14 @@ const draw = () => {
         ctx.textBaseline = "middle";
         ctx.fillStyle = "#000000";
         if(count>0&&count<=17) {
-            ctx.fillText(`wow you won the highscore!!`, 300, 300);
-            ctx.fillText(`You level is ADVANCED. moves: ${count+1}`, 300, 350);
+            ctx.fillText(`Wow you won the highscore!!`, 300, 300);
+            ctx.fillText(`You level is ADVANCED. Moves: ${count+1}`, 300, 350);
         } else if (count>17&&count<=35) {
-            ctx.fillText(`chill! your level is MEDIUM.`, 300, 300);
+            ctx.fillText(`Chill! Your level is MEDIUM.`, 300, 300);
             ctx.fillText(`Your moves is: ${count+1}`, 300, 350);
         }
         if(count>35) {
-            ctx.fillText(`not bad! Your level is BEGINNER!`, 300, 300);
+            ctx.fillText(`Not bad! Your level is BEGINNER!`, 300, 300);
             ctx.fillText(`Your moves is: ${count+1}`, 300, 350);
         }
     }
