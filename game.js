@@ -4,6 +4,7 @@ const draw = () => {
     const moves = document.getElementById('movesCount');
     const ctx = canvas.getContext('2d');
     let count = 0;
+    let isGameWin = false;
     
     let imageWidth = 150;
     let imageHeight = 150;
@@ -121,7 +122,10 @@ const draw = () => {
     }
 
     let onClickHandler = (click) => {
-        
+        if(isGameWin) {
+            gameStart();
+            isGameWin = false;
+        }
         if(firstClick!=null&&secondClick!=null) {
             if(isMatch) {
                 arrayOfWinIDs.push(arrayOfDoubles[firstClick]);
@@ -167,6 +171,7 @@ const draw = () => {
     let checkEndGame = () => {
         if(arrayOfWinIDs.length == 14) {
             drawWinScreen(count);
+            isGameWin = true;
         }
     }
 
@@ -235,11 +240,20 @@ const draw = () => {
             drawImageOnCanvas(imagesArray[arrayOfQuestionCards[i]], i);
         }
     }
-
-    createRandomDoublesOnArea();
-    drawAllImages();
+    let gameStart = () => {
+        firstClick = null;
+        secondClick = null;
+        isMatch = false;
+        arrayOfDoubles = [];
+        arrayOfWinIDs = [];
+        count = 0;
+        ctx.clearRect(0,0, 600, 600);
+        createRandomDoublesOnArea();
+        drawAllImages();
+    }
     
     canvas.addEventListener("click", clicked, false); 
+    gameStart();
 }
 window.onload = function() {draw()}
 
